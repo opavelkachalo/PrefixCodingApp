@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 import sys
-from GUI import design_main, design_another
+from GUI import design
 from prefixCoding import AlphabetCoding
 from prefixCoding.AlphabetCoding import sorting_dict, entropy
 from PyQt5 import QtWidgets, QtGui
 
 
-class MainWindow(QtWidgets.QMainWindow, design_main.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
     """Главное окно с выбором параметров кодирования"""
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setGeometry(650, 300, 500, 500)
+        self.setGeometry(350, 300, 1150, 600)
         self.setWindowTitle('Префиксное кодирование')
         self.setWindowIcon(QtGui.QIcon(r'resources\app_icon.png'))
         # По умолчанию метод кодирования не определен
@@ -51,37 +51,16 @@ class MainWindow(QtWidgets.QMainWindow, design_main.Ui_MainWindow):
         # AlphabetCoding должны принимать None, если буквы не определены
         if len(letters) == 0:
             letters = None
-        self.w = ResultWindow(frequencies, letters, self.code_method)
-        # Новое окно имеет те же геометрические параметры, что и основное
-        self.w.setGeometry(self.geometry())
-        self.w.show()
+        self.coding_func(frequencies, letters)
 
-
-class ResultWindow(QtWidgets.QDialog, design_another.Ui_Dialog):
-    """Окно с результатами кодирования"""
-    def __init__(self, frequencies, letters, method):
-        super().__init__()
-        self.setupUi(self)
-        self.setWindowTitle('Префиксное кодирование')
-        self.setWindowIcon(QtGui.QIcon(r'resources\app_icon.png'))
-        # Инициализация параметров
-        self.frequencies = frequencies
-        self.letters = letters
-        self.method = method
-        # Кнопка "Назад"
-        self.btnBack.clicked.connect(self.close)
-        self.main_func()
-
-    def main_func(self):
-        self.labelHeader.setText('<html><head/><body><p align=\"center\"><span style=\" font-size:14pt; '
-                                 'font-weight:600;\">Код ' + self.method[6:] + '</span></p></body></html>')
+    def coding_func(self, frequencies, letters):
         self.labelEntropy.setText(f'<html><head/><body><p><span style=\" font-size:10pt;\">Значение энтропии для '
-                                  f'алфавита: {entropy(self.frequencies)}</span></p></body></html>')
-        if self.method == "метод Шеннона-Фано":
-            alph = AlphabetCoding.ShannonFano(self.frequencies, self.letters)
+                                  f'алфавита: {entropy(frequencies)}</span></p></body></html>')
+        if self.code_method == "метод Шеннона-Фано":
+            alph = AlphabetCoding.ShannonFano(frequencies, letters)
             alph.coding(sorting_dict(alph.probabilities))
         else:
-            alph = AlphabetCoding.Huffman(self.frequencies, self.letters)
+            alph = AlphabetCoding.Huffman(frequencies, letters)
             alph.coding(alph.build_huffman_tree())
         self.labelLength.setText(f'<html><head/><body><p><span style=\" font-size:10pt;\">Средняя длина кодовых '
                                  f'комбинаций: {alph.mean_length()}</span></p></body></html>')
@@ -124,4 +103,4 @@ if __name__ == '__main__':
 # TODO: сделать .exe файл
 # TODO: Сделать визуализацию решения
 # TODO: Сделать базу, хранящую закодированные алфавиты
-# TODO: Создать репозиторий на GitHub
+# TODO: Оформить дизайн приложения используя CSS
